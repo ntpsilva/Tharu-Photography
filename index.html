@@ -3,625 +3,957 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tharu Photography</title>
+    <title>Tharu Photography | Premium Visual Storytelling</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',
+                        secondary: '#f43f5e',
+                        accent: '#3b82f6',
+                        dark: '#020617',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Bebas Neue', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 1s ease-in'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* CSS Styles */
-        :root {
-            --primary: #2c3e50;
-            --secondary: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #1a252f;
-            --accent: #3498db;
+        /* Custom styles */
+        .hero-gradient {
+            background: radial-gradient(circle at 30% 60%, rgba(244, 63, 94, 0.15) 0%, rgba(15, 23, 42, 0) 50%);
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        .text-stroke {
+            -webkit-text-stroke: 1px #f8fafc;
+            color: transparent;
         }
         
-        body {
-            background-color: var(--light);
-            color: var(--dark);
-            line-height: 1.6;
-        }
-        
-        header {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1493863641943-9b68992a8d07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
+        .parallax-bg {
+            background-attachment: fixed;
             background-position: center;
-            height: 100vh;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
         
-        .logo {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            color: var(--light);
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        .logo span {
-            color: var(--secondary);
+        .image-hover-effect {
+            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         
-        .tagline {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-            max-width: 800px;
+        .image-hover-effect:hover {
+            transform: scale(1.03);
         }
         
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(44, 62, 80, 0.9);
-            padding: 1rem 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-        
-        nav.scrolled {
-            background-color: var(--primary);
-            padding: 0.5rem 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .nav-logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-        }
-        
-        .nav-logo span {
-            color: var(--secondary);
-        }
-        
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-        
-        .nav-links li {
-            margin-left: 2rem;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        
-        .nav-links a:hover {
-            color: var(--secondary);
-        }
-        
-        .btn {
-            display: inline-block;
-            background: var(--secondary);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 1rem;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            background: #c0392b;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid white;
-            margin-left: 1rem;
-        }
-        
-        .btn-outline:hover {
-            background: white;
-            color: var(--primary);
-        }
-        
-        section {
-            padding: 5rem 0;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
-            font-size: 2.5rem;
-            color: var(--primary);
-        }
-        
-        .section-title span {
-            color: var(--secondary);
-        }
-        
-        .about-content {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .about-text {
-            flex: 1;
-            min-width: 300px;
-            padding-right: 2rem;
-        }
-        
-        .about-image {
-            flex: 1;
-            min-width: 300px;
-            text-align: center;
-        }
-        
-        .about-image img {
-            max-width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .gallery {
-            background-color: var(--dark);
-            color: white;
-        }
-        
-        .gallery .section-title {
-            color: white;
-        }
-        
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .gallery-item {
-            position: relative;
-            overflow: hidden;
-            border-radius: 5px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            height: 250px;
-        }
-        
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-        
-        .gallery-item:hover img {
-            transform: scale(1.1);
-        }
-        
-        .gallery-item-overlay {
+        #canvas-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(231, 76, 60, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .gallery-item:hover .gallery-item-overlay {
-            opacity: 1;
-        }
-        
-        .overlay-text {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .services {
-            text-align: center;
-        }
-        
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-        
-        .service-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-        
-        .service-card:hover {
-            transform: translateY(-10px);
-        }
-        
-        .service-icon {
-            font-size: 3rem;
-            color: var(--secondary);
-            margin-bottom: 1rem;
-        }
-        
-        .service-title {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-        
-        .contact {
-            background-color: var(--primary);
-            color: white;
-        }
-        
-        .contact .section-title {
-            color: white;
-        }
-        
-        .contact-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        
-        .contact-info {
-            flex: 1;
-            min-width: 300px;
-            padding-right: 2rem;
-        }
-        
-        .contact-info h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .contact-info p {
-            margin-bottom: 1rem;
-        }
-        
-        .contact-info i {
-            color: var(--secondary);
-            margin-right: 0.5rem;
-        }
-        
-        .contact-form {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
-        
-        .form-group textarea {
-            height: 150px;
-            resize: vertical;
-        }
-        
-        footer {
-            background-color: var(--dark);
-            color: white;
-            text-align: center;
-            padding: 2rem 0;
-        }
-        
-        .social-links {
-            margin-bottom: 1rem;
-        }
-        
-        .social-links a {
-            color: white;
-            font-size: 1.5rem;
-            margin: 0 0.5rem;
-            transition: color 0.3s;
-        }
-        
-        .social-links a:hover {
-            color: var(--secondary);
-        }
-        
-        .back-to-top {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--secondary);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-            font-size: 1.5rem;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-        }
-        
-        .back-to-top.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .about-content {
-                flex-direction: column;
-            }
-            
-            .about-text {
-                padding-right: 0;
-                margin-bottom: 2rem;
-            }
-            
-            .header-buttons {
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .btn-outline {
-                margin-left: 0;
-                margin-top: 1rem;
-            }
+            z-index: -1;
+            opacity: 0.3;
         }
     </style>
 </head>
-<body>
+<body class="font-sans bg-primary text-light antialiased overflow-x-hidden">
+    <!-- Three.js Background Canvas -->
+    <div id="canvas-container"></div>
+    
     <!-- Navigation -->
-    <nav id="navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-logo">Tharu <span>Photography</span></a>
-            <ul class="nav-links">
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#gallery">Gallery</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
+    <nav class="fixed w-full z-50 transition-all duration-500" id="navbar">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-3xl font-display tracking-wider">
+                <span class="text-light">THARU</span>
+                <span class="text-secondary">.</span>
+            </a>
+            
+            <div class="hidden lg:flex space-x-10">
+                <a href="#home" class="text-light hover:text-secondary transition-colors font-medium">Home</a>
+                <a href="#about" class="text-light hover:text-secondary transition-colors font-medium">About</a>
+                <a href="#portfolio" class="text-light hover:text-secondary transition-colors font-medium">Portfolio</a>
+                <a href="#services" class="text-light hover:text-secondary transition-colors font-medium">Services</a>
+                <a href="#testimonials" class="text-light hover:text-secondary transition-colors font-medium">Clients</a>
+                <a href="#contact" class="text-light hover:text-secondary transition-colors font-medium">Contact</a>
+            </div>
+            
+            <div class="lg:hidden">
+                <button id="menu-toggle" class="text-light focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-dark/95 w-full absolute top-20 left-0 py-4 px-6">
+            <div class="flex flex-col space-y-4">
+                <a href="#home" class="text-light hover:text-secondary transition-colors">Home</a>
+                <a href="#about" class="text-light hover:text-secondary transition-colors">About</a>
+                <a href="#portfolio" class="text-light hover:text-secondary transition-colors">Portfolio</a>
+                <a href="#services" class="text-light hover:text-secondary transition-colors">Services</a>
+                <a href="#testimonials" class="text-light hover:text-secondary transition-colors">Clients</a>
+                <a href="#contact" class="text-light hover:text-secondary transition-colors">Contact</a>
+            </div>
         </div>
     </nav>
-
-    <!-- Header/Hero Section -->
-    <header id="home">
-        <h1 class="logo">Tharu <span>Photography</span></h1>
-        <p class="tagline">Capturing life's precious moments with artistry and passion. Let us tell your story through our lens.</p>
-        <div class="header-buttons">
-            <a href="#contact" class="btn">Book a Session</a>
-            <a href="#gallery" class="btn btn-outline">View Portfolio</a>
+    
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden hero-gradient">
+        <div class="container mx-auto px-6 py-20 text-center">
+            <h1 class="text-6xl md:text-8xl font-display tracking-tight mb-6">
+                <span class="text-light">CAPTURING</span>
+                <span class="text-secondary">.</span>
+                <span class="text-light">MOMENTS</span>
+                <span class="text-secondary">.</span>
+                <span class="text-light">THAT</span>
+                <span class="text-secondary">.</span>
+                <span class="text-light">MATTER</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-12 opacity-90">
+                Premium visual storytelling through contemporary photography. Based in Colombo, serving clients worldwide.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#portfolio" class="bg-secondary hover:bg-secondary/90 text-light px-8 py-4 rounded-full font-medium transition-all transform hover:-translate-y-1 shadow-lg shadow-secondary/30">
+                    View Portfolio
+                </a>
+                <a href="#contact" class="border-2 border-light hover:border-secondary text-light hover:text-secondary px-8 py-4 rounded-full font-medium transition-all transform hover:-translate-y-1">
+                    Book a Session
+                </a>
+            </div>
         </div>
-    </header>
-
+        
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-8 h-8 text-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+    
     <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <h2 class="section-title">About <span>Us</span></h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>Welcome to Tharu Photography, where we transform moments into timeless memories. Founded in 2010, we've been dedicated to capturing the essence of life's most precious occasions with creativity and passion.</p>
-                    <p>Our team of professional photographers brings a unique artistic vision to every project, whether it's a wedding, portrait session, or commercial assignment. We believe in authentic storytelling through imagery that speaks to the heart.</p>
-                    <p>With state-of-the-art equipment and a keen eye for detail, we ensure every shot is perfect. Our approach combines technical expertise with a personal touch, making every session comfortable and enjoyable.</p>
-                </div>
-                <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1529612700005-e35377bf1415?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Photographer at work">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Gallery Section -->
-    <section id="gallery" class="gallery">
-        <div class="container">
-            <h2 class="section-title">Our <span>Gallery</span></h2>
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1529633980621-989d4e3f778f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Wedding photography">
-                    <div class="gallery-item-overlay">
-                        <span class="overlay-text">Weddings</span>
+    <section id="about" class="py-20 bg-dark relative overflow-hidden">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
+                    <h2 class="text-5xl font-display mb-8">
+                        <span class="text-light">ABOUT</span>
+                        <span class="text-secondary">.</span>
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <p class="text-lg opacity-90">
+                            Tharu Photography is a premier visual storytelling studio specializing in contemporary photography for discerning clients worldwide. Founded in 2015, we've established ourselves as one of Sri Lanka's most sought-after photography studios.
+                        </p>
+                        
+                        <p class="text-lg opacity-90">
+                            Our approach blends technical precision with artistic vision, creating images that transcend trends and stand the test of time. We believe in authentic storytelling that captures the essence of your unique narrative.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mt-8">
+                            <div class="bg-primary/50 p-6 rounded-xl">
+                                <h3 class="text-secondary text-2xl font-display mb-2">10K+</h3>
+                                <p class="opacity-80">Photos Captured</p>
+                            </div>
+                            <div class="bg-primary/50 p-6 rounded-xl">
+                                <h3 class="text-secondary text-2xl font-display mb-2">500+</h3>
+                                <p class="opacity-80">Happy Clients</p>
+                            </div>
+                            <div class="bg-primary/50 p-6 rounded-xl">
+                                <h3 class="text-secondary text-2xl font-display mb-2">50+</h3>
+                                <p class="opacity-80">Awards Won</p>
+                            </div>
+                            <div class="bg-primary/50 p-6 rounded-xl">
+                                <h3 class="text-secondary text-2xl font-display mb-2">7</h3>
+                                <p class="opacity-80">Years Experience</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Portrait photography">
-                    <div class="gallery-item-overlay">
-                        <span class="overlay-text">Portraits</span>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Family photography">
-                    <div class="gallery-item-overlay">
-                        <span class="overlay-text">Family</span>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Event photography">
-                    <div class="gallery-item-overlay">
-                        <span class="overlay-text">Events</span>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1493863641943-9b68992a8d07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Commercial photography">
-                    <div class="gallery-item-overlay">
-                        <span class="overlay-text">Commercial</span>
-                    </div>
-                </div>
-                <div class="gallery-item">
-                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Nature photography">
-                    <div class="gallery-item-overlay">
-                        <span class="overlay-text">Nature</span>
+                
+                <div class="lg:w-1/2 relative">
+                    <div class="relative group">
+                        <img src="https://images.unsplash.com/photo-1529612700005-e35377bf1415?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                             alt="Tharu Photography" 
+                             class="w-full h-auto rounded-2xl shadow-2xl image-hover-effect">
+                        
+                        <div class="absolute -bottom-6 -right-6 bg-secondary p-6 rounded-2xl shadow-xl group-hover:rotate-6 transition-transform duration-500">
+                            <h3 class="text-dark text-xl font-display">Tharu Perera</h3>
+                            <p class="text-dark/80">Lead Photographer</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
+    
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-20 bg-primary relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-display mb-4">
+                    <span class="text-light">PORTFOLIO</span>
+                    <span class="text-secondary">.</span>
+                </h2>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">
+                    Explore our curated collections showcasing the breadth and depth of our photographic work.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Portfolio Item 1 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1529633980621-989d4e3f778f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                         alt="Wedding Photography" 
+                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-display text-light mb-2">Wedding Stories</h3>
+                        <p class="text-light/80 mb-4">Elegant documentation of your special day</p>
+                        <a href="#" class="text-secondary font-medium flex items-center group">
+                            View Collection
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Portfolio Item 2 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                         alt="Portrait Photography" 
+                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-display text-light mb-2">Portrait Series</h3>
+                        <p class="text-light/80 mb-4">Capturing the essence of personality</p>
+                        <a href="#" class="text-secondary font-medium flex items-center group">
+                            View Collection
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Portfolio Item 3 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                         alt="Family Photography" 
+                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-display text-light mb-2">Family Chronicles</h3>
+                        <p class="text-light/80 mb-4">Timeless memories for generations</p>
+                        <a href="#" class="text-secondary font-medium flex items-center group">
+                            View Collection
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Portfolio Item 4 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                         alt="Event Photography" 
+                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-display text-light mb-2">Event Coverage</h3>
+                        <p class="text-light/80 mb-4">Professional documentation of special occasions</p>
+                        <a href="#" class="text-secondary font-medium flex items-center group">
+                            View Collection
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Portfolio Item 5 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1493863641943-9b68992a8d07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                         alt="Commercial Photography" 
+                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-display text-light mb-2">Commercial Work</h3>
+                        <p class="text-light/80 mb-4">Elevating brands through visual storytelling</p>
+                        <a href="#" class="text-secondary font-medium flex items-center group">
+                            View Collection
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Portfolio Item 6 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
+                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                         alt="Fine Art Photography" 
+                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
+                        <h3 class="text-2xl font-display text-light mb-2">Fine Art Series</h3>
+                        <p class="text-light/80 mb-4">Conceptual photography projects</p>
+                        <a href="#" class="text-secondary font-medium flex items-center group">
+                            View Collection
+                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-16">
+                <a href="#" class="inline-flex items-center px-8 py-4 border-2 border-secondary text-secondary font-medium rounded-full hover:bg-secondary hover:text-light transition-all">
+                    View Full Portfolio
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+    
     <!-- Services Section -->
-    <section id="services" class="services">
-        <div class="container">
-            <h2 class="section-title">Our <span>Services</span></h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">📷</div>
-                    <h3 class="service-title">Wedding Photography</h3>
-                    <p>Capture your special day with our elegant and timeless wedding photography services. We document every precious moment from preparation to reception.</p>
+    <section id="services" class="py-20 bg-dark relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-display mb-4">
+                    <span class="text-light">SERVICES</span>
+                    <span class="text-secondary">.</span>
+                </h2>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">
+                    Comprehensive photography services tailored to your unique needs and vision.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service 1 -->
+                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
+                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
+                        <i class="fas fa-ring"></i>
+                    </div>
+                    <h3 class="text-2xl font-display text-light mb-4">Wedding Photography</h3>
+                    <p class="opacity-90 mb-6">Comprehensive coverage of your special day from preparation to reception, delivered with artistic flair and attention to detail.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Full-day coverage
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Second photographer
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Online gallery
+                        </li>
+                    </ul>
+                    <a href="#" class="text-secondary font-medium flex items-center group">
+                        Learn More
+                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">👨‍👩‍👧‍👦</div>
-                    <h3 class="service-title">Family Portraits</h3>
-                    <p>Beautifully crafted family portraits that you'll treasure for generations. We create relaxed, natural sessions that bring out your family's unique personality.</p>
+                
+                <!-- Service 2 -->
+                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
+                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-2xl font-display text-light mb-4">Portrait Sessions</h3>
+                    <p class="opacity-90 mb-6">Professional portrait sessions tailored to your needs, whether for personal branding, social media, or personal keepsakes.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Studio or location
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Professional styling advice
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Digital & print options
+                        </li>
+                    </ul>
+                    <a href="#" class="text-secondary font-medium flex items-center group">
+                        Learn More
+                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">🎉</div>
-                    <h3 class="service-title">Event Coverage</h3>
-                    <p>From birthdays to corporate events, we professionally document your special occasions with creative and comprehensive coverage.</p>
+                
+                <!-- Service 3 -->
+                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
+                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h3 class="text-2xl font-display text-light mb-4">Commercial Photography</h3>
+                    <p class="opacity-90 mb-6">High-quality commercial imagery for brands, including product photography, corporate headshots, and marketing materials.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Product staging
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Brand storytelling
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Professional editing
+                        </li>
+                    </ul>
+                    <a href="#" class="text-secondary font-medium flex items-center group">
+                        Learn More
+                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">💼</div>
-                    <h3 class="service-title">Commercial Photography</h3>
-                    <p>High-quality images for your business needs, including product photography, corporate headshots, and branding imagery.</p>
+                
+                <!-- Service 4 -->
+                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
+                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="text-2xl font-display text-light mb-4">Event Coverage</h3>
+                    <p class="opacity-90 mb-6">Professional documentation of corporate events, galas, parties, and other special occasions.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Candid moments
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Professional editing
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Fast turnaround
+                        </li>
+                    </ul>
+                    <a href="#" class="text-secondary font-medium flex items-center group">
+                        Learn More
+                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">🎓</div>
-                    <h3 class="service-title">Graduation Photos</h3>
-                    <p>Celebrate academic achievements with professional graduation portraits that capture this important milestone in style.</p>
+                
+                <!-- Service 5 -->
+                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
+                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="text-2xl font-display text-light mb-4">Graduation Portraits</h3>
+                    <p class="opacity-90 mb-6">Celebrate academic achievements with professional graduation portraits that capture this important milestone.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Studio or campus location
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Cap & gown provided
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Family packages available
+                        </li>
+                    </ul>
+                    <a href="#" class="text-secondary font-medium flex items-center group">
+                        Learn More
+                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
                 </div>
-                <div class="service-card">
-                    <div class="service-icon">🌿</div>
-                    <h3 class="service-title">Outdoor Sessions</h3>
-                    <p>Beautiful natural light photography in scenic outdoor locations for engagements, maternity, or just because.</p>
+                
+                <!-- Service 6 -->
+                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
+                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3 class="text-2xl font-display text-light mb-4">Photo Restoration</h3>
+                    <p class="opacity-90 mb-6">Bring your old, damaged photos back to life with our professional photo restoration services.</p>
+                    <ul class="space-y-2 mb-6">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Color correction
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Damage repair
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Digital & print options
+                        </li>
+                    </ul>
+                    <a href="#" class="text-secondary font-medium flex items-center group">
+                        Learn More
+                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title">Contact <span>Us</span></h2>
-            <div class="contact-container">
-                <div class="contact-info">
-                    <h3>Get in Touch</h3>
-                    <p><i>📍</i> 123 Camera Street, Colombo 05, Sri Lanka</p>
-                    <p><i>📞</i> +94 76 123 4567</p>
-                    <p><i>✉️</i> info@tharuphotography.com</p>
-                    <p><i>⏰</i> Monday - Saturday: 9:00 AM - 6:00 PM</p>
-                    <div class="social-links">
-                        <a href="#"><i>📱</i></a>
-                        <a href="#"><i>📘</i></a>
-                        <a href="#"><i>📸</i></a>
-                        <a href="#"><i>🔗</i></a>
+    
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-primary relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-display mb-4">
+                    <span class="text-light">CLIENT</span>
+                    <span class="text-secondary">.</span>
+                    <span class="text-light">STORIES</span>
+                </h2>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">
+                    Don't just take our word for it - hear what our clients have to say.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-dark p-8 rounded-2xl">
+                    <div class="flex items-center mb-6">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J." class="w-16 h-16 rounded-full object-cover mr-4">
+                        <div>
+                            <h4 class="text-light font-medium">Sarah J.</h4>
+                            <p class="text-secondary text-sm">Wedding Client</p>
+                        </div>
+                    </div>
+                    <p class="opacity-90 italic mb-6">
+                        "Tharu captured our wedding day perfectly. The photos are stunning and truly reflect the emotions of the day. We'll cherish them forever!"
+                    </p>
+                    <div class="flex text-secondary">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
                     </div>
                 </div>
-                <div class="contact-form">
-                    <form id="contactForm">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" id="name" name="name" required>
+                
+                <!-- Testimonial 2 -->
+                <div class="bg-dark p-8 rounded-2xl">
+                    <div class="flex items-center mb-6">
+                        <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David L." class="w-16 h-16 rounded-full object-cover mr-4">
+                        <div>
+                            <h4 class="text-light font-medium">David L.</h4>
+                            <p class="text-secondary text-sm">Corporate Client</p>
                         </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required>
+                    </div>
+                    <p class="opacity-90 italic mb-6">
+                        "The team did an exceptional job with our company headshots. Professional, efficient, and the results were better than we could have hoped for."
+                    </p>
+                    <div class="flex text-secondary">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 3 -->
+                <div class="bg-dark p-8 rounded-2xl">
+                    <div class="flex items-center mb-6">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya K." class="w-16 h-16 rounded-full object-cover mr-4">
+                        <div>
+                            <h4 class="text-light font-medium">Priya K.</h4>
+                            <p class="text-secondary text-sm">Family Portrait Client</p>
                         </div>
-                        <div class="form-group">
-                            <label for="phone">Phone</label>
-                            <input type="tel" id="phone" name="phone">
+                    </div>
+                    <p class="opacity-90 italic mb-6">
+                        "Our family photos are absolutely beautiful! Tharu made us all feel comfortable and captured our family's personality perfectly."
+                    </p>
+                    <div class="flex text-secondary">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Section -->
+    <section id="contact" class="py-20 bg-dark relative">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row">
+                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
+                    <h2 class="text-5xl font-display mb-8">
+                        <span class="text-light">LET'S</span>
+                        <span class="text-secondary">.</span>
+                        <span class="text-light">CREATE</span>
+                    </h2>
+                    
+                    <p class="text-xl opacity-90 mb-8">
+                        Ready to discuss your photography needs? Get in touch and let's create something beautiful together.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="text-secondary mr-4 mt-1">
+                                <i class="fas fa-map-marker-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-light font-medium mb-1">Studio Address</h3>
+                                <p class="opacity-90">123 Camera Street, Colombo 05, Sri Lanka</p>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" required></textarea>
+                        
+                        <div class="flex items-start">
+                            <div class="text-secondary mr-4 mt-1">
+                                <i class="fas fa-envelope text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-light font-medium mb-1">Email Us</h3>
+                                <p class="opacity-90">hello@tharuphotography.com</p>
+                            </div>
                         </div>
-                        <button type="submit" class="btn">Send Message</button>
+                        
+                        <div class="flex items-start">
+                            <div class="text-secondary mr-4 mt-1">
+                                <i class="fas fa-phone-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-light font-medium mb-1">Call Us</h3>
+                                <p class="opacity-90">+94 76 123 4567</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <div class="text-secondary mr-4 mt-1">
+                                <i class="fas fa-clock text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-light font-medium mb-1">Working Hours</h3>
+                                <p class="opacity-90">Monday - Saturday: 9:00 AM - 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-10">
+                        <h3 class="text-light font-medium mb-4">Follow Us</h3>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
+                                <i class="fab fa-pinterest-p"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lg:w-1/2">
+                    <form class="bg-primary/50 p-8 rounded-2xl">
+                        <div class="mb-6">
+                            <label for="name" class="block text-light font-medium mb-2">Your Name</label>
+                            <input type="text" id="name" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="email" class="block text-light font-medium mb-2">Email Address</label>
+                            <input type="email" id="email" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="phone" class="block text-light font-medium mb-2">Phone Number</label>
+                            <input type="tel" id="phone" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="service" class="block text-light font-medium mb-2">Service Interested In</label>
+                            <select id="service" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
+                                <option>Wedding Photography</option>
+                                <option>Portrait Sessions</option>
+                                <option>Commercial Photography</option>
+                                <option>Event Coverage</option>
+                                <option>Graduation Portraits</option>
+                                <option>Photo Restoration</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="message" class="block text-light font-medium mb-2">Your Message</label>
+                            <textarea id="message" rows="5" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-secondary hover:bg-secondary/90 text-light font-medium py-4 px-6 rounded-lg transition-all transform hover:-translate-y-1">
+                            Send Message
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
-
+    
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="social-links">
-                <a href="#"><i>📱</i></a>
-                <a href="#"><i>📘</i></a>
-                <a href="#"><i>📸</i></a>
-                <a href="#"><i>🔗</i></a>
+    <footer class="bg-primary py-12 border-t border-primary/50">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <a href="#" class="text-3xl font-display tracking-wider">
+                        <span class="text-light">THARU</span>
+                        <span class="text-secondary">.</span>
+                    </a>
+                </div>
+                
+                <div class="flex flex-col md:flex-row md:space-x-10 space-y-4 md:space-y-0 text-center md:text-left">
+                    <a href="#home" class="text-light hover:text-secondary transition-colors">Home</a>
+                    <a href="#about" class="text-light hover:text-secondary transition-colors">About</a>
+                    <a href="#portfolio" class="text-light hover:text-secondary transition-colors">Portfolio</a>
+                    <a href="#services" class="text-light hover:text-secondary transition-colors">Services</a>
+                    <a href="#contact" class="text-light hover:text-secondary transition-colors">Contact</a>
+                </div>
             </div>
-            <p>&copy; 2023 Tharu Photography. All Rights Reserved.</p>
+            
+            <div class="border-t border-primary/50 mt-10 pt-10 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-light/80 mb-4 md:mb-0">
+                    &copy; 2023 Tharu Photography. All rights reserved.
+                </p>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
+                        <i class="fab fa-pinterest-p"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </footer>
-
+    
     <!-- Back to Top Button -->
-    <a href="#home" class="back-to-top" id="backToTop">↑</a>
-
+    <a href="#home" id="back-to-top" class="fixed bottom-8 right-8 w-12 h-12 bg-secondary text-light rounded-full flex items-center justify-center opacity-0 invisible transition-all duration-300">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+    
     <!-- JavaScript -->
     <script>
+        // Three.js Background Animation
+        const container = document.getElementById('canvas-container');
+        
+        // Set up Three.js scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
+        
+        // Create particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particleCount = 1000;
+        
+        const posArray = new Float32Array(particleCount * 3);
+        
+        for(let i = 0; i < particleCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+        
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            color: 0xf43f5e,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        
+        camera.position.z = 3;
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            particlesMesh.rotation.x += 0.0005;
+            particlesMesh.rotation.y += 0.0005;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // Animate sections on scroll
+        gsap.utils.toArray('section').forEach(section => {
+            gsap.from(section, {
+                scrollTrigger: {
+                    trigger: section,
+                    start: 'top 80%',
+                    toggleActions: 'play none none none'
+                },
+                opacity: 0,
+                y: 50,
+                duration: 1
+            });
+        });
+        
         // Navbar scroll effect
         window.addEventListener('scroll', function() {
             const navbar = document.getElementById('navbar');
+            const backToTop = document.getElementById('back-to-top');
+            
             if (window.scrollY > 100) {
-                navbar.classList.add('scrolled');
+                navbar.classList.add('bg-dark/95', 'backdrop-blur-sm', 'py-3');
+                navbar.classList.remove('py-4');
             } else {
-                navbar.classList.remove('scrolled');
+                navbar.classList.remove('bg-dark/95', 'backdrop-blur-sm', 'py-3');
+                navbar.classList.add('py-4');
             }
             
-            // Back to top button
-            const backToTop = document.getElementById('backToTop');
             if (window.scrollY > 300) {
-                backToTop.classList.add('active');
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
             } else {
-                backToTop.classList.remove('active');
+                backToTop.classList.add('opacity-0', 'invisible');
+                backToTop.classList.remove('opacity-100', 'visible');
             }
+        });
+        
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        menuToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenu.classList.add('hidden');
+            });
         });
         
         // Smooth scrolling for navigation links
@@ -633,39 +965,92 @@
                 const targetElement = document.querySelector(targetId);
                 
                 window.scrollTo({
-                    top: targetElement.offsetTop - 70,
+                    top: targetElement.offsetTop - 80,
                     behavior: 'smooth'
                 });
             });
         });
         
         // Form submission
-        const contactForm = document.getElementById('contactForm');
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            
-            // Here you would typically send the form data to a server
-            // For this example, we'll just show an alert
-            alert(`Thank you, ${name}! Your message has been sent. We'll contact you at ${email} soon.`);
-            
-            // Reset the form
-            contactForm.reset();
-        });
-        
-        // Simple image gallery modal (would be enhanced in a real implementation)
-        const galleryItems = document.querySelectorAll('.gallery-item');
-        galleryItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const imgSrc = this.querySelector('img').src;
-                // In a real implementation, this would open a modal with the image
-                alert('In a complete implementation, this would open a larger view of the image.');
+        const contactForm = document.querySelector('#contact form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('name').value;
+                const email = document.getElementById('email').value;
+                
+                // Show success message
+                alert(`Thank you, ${name}! Your message has been sent. We'll contact you at ${email} soon.`);
+                
+                // Reset the form
+                contactForm.reset();
             });
-        });
+        }
+        
+        // p5.js Interactive Elements
+        const sketch = (p) => {
+            let particles = [];
+            
+            p.setup = () => {
+                let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                canvas.position(0, 0);
+                canvas.style('z-index', '-1');
+                
+                for (let i = 0; i < 50; i++) {
+                    particles.push(new Particle());
+                }
+            };
+            
+            p.draw = () => {
+                p.clear();
+                
+                for (let particle of particles) {
+                    particle.update();
+                    particle.display();
+                }
+            };
+            
+            p.windowResized = () => {
+                p.resizeCanvas(p.windowWidth, p.windowHeight);
+            };
+            
+            class Particle {
+                constructor() {
+                    this.pos = p.createVector(p.random(p.width), p.random(p.height));
+                    this.vel = p.createVector(p.random(-1, 1), p.random(-1, 1));
+                    this.acc = p.createVector(0, 0);
+                    this.maxSpeed = 2;
+                    this.size = p.random(2, 5);
+                    this.color = p.color(244, 63, 94, 100);
+                }
+                
+                update() {
+                    this.vel.add(this.acc);
+                    this.vel.limit(this.maxSpeed);
+                    this.pos.add(this.vel);
+                    this.acc.mult(0);
+                    
+                    this.edges();
+                }
+                
+                display() {
+                    p.noStroke();
+                    p.fill(this.color);
+                    p.ellipse(this.pos.x, this.pos.y, this.size);
+                }
+                
+                edges() {
+                    if (this.pos.x > p.width) this.pos.x = 0;
+                    if (this.pos.x < 0) this.pos.x = p.width;
+                    if (this.pos.y > p.height) this.pos.y = 0;
+                    if (this.pos.y < 0) this.pos.y = p.height;
+                }
+            }
+        };
+        
+        new p5(sketch);
     </script>
 </body>
 </html>
