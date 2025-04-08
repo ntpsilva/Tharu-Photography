@@ -3,367 +3,422 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tharu Photography | Premium Visual Storytelling</title>
-    
-    <!-- Tailwind CSS -->
+    <title>Tharu Photography | Capturing Life's Beautiful Moments</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0f172a',
-                        secondary: '#f43f5e',
-                        accent: '#3b82f6',
-                        dark: '#020617',
-                        light: '#f8fafc'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Bebas Neue', 'sans-serif']
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'fade-in': 'fadeIn 1s ease-in'
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' }
-                        },
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    
-    <!-- p5.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
-    
-    <!-- GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <script src="https://unpkg.com/splitting/dist/splitting.min.js"></script>
+    <script src="https://unpkg.com/scroll-out/dist/scroll-out.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap">
     <style>
-        /* Custom styles */
-        .hero-gradient {
-            background: radial-gradient(circle at 30% 60%, rgba(244, 63, 94, 0.15) 0%, rgba(15, 23, 42, 0) 50%);
+        :root {
+            --primary-dark: #0a192f;
+            --primary-blue: #1e90ff;
+            --primary-light: #ccd6f6;
+            --accent-blue: #64ffda;
         }
         
-        .text-stroke {
-            -webkit-text-stroke: 1px #f8fafc;
-            color: transparent;
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--primary-dark);
+            color: var(--primary-light);
+            overflow-x: hidden;
         }
         
-        .parallax-bg {
-            background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
         }
         
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .hero-text {
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
         
-        .image-hover-effect {
-            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        .gallery-item {
+            transition: all 0.3s ease;
         }
         
-        .image-hover-effect:hover {
+        .gallery-item:hover {
             transform: scale(1.03);
+            box-shadow: 0 10px 20px rgba(30, 144, 255, 0.2);
         }
         
-        #canvas-container {
+        .contact-input {
+            background: rgba(10, 25, 47, 0.7);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+        
+        .contact-input:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
             position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--accent-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .active::after {
+            width: 100%;
+        }
+        
+        /* Three.js background */
+        #threejs-bg {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.3;
+            opacity: 0.2;
+        }
+        
+        /* Particle canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        /* Animated border */
+        .animated-border {
+            position: relative;
+        }
+        
+        .animated-border::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            background: linear-gradient(45deg, #1e90ff, #64ffda, #1e90ff);
+            background-size: 200%;
+            border-radius: inherit;
+            animation: borderAnimation 3s linear infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes borderAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Splitting.js animation */
+        .splitting .char {
+            animation: fadeInUp 0.5s cubic-bezier(0.5, 0, 0.5, 1) both;
+            animation-delay: calc(30ms * var(--char-index));
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Scroll animation */
+        [data-scroll] {
+            transition: all 0.5s ease;
+        }
+        
+        [data-scroll="in"] {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        [data-scroll="out"] {
+            opacity: 0;
+            transform: translateY(20px);
         }
     </style>
 </head>
-<body class="font-sans bg-primary text-light antialiased overflow-x-hidden">
-    <!-- Three.js Background Canvas -->
-    <div id="canvas-container"></div>
+<body class="antialiased">
+    <!-- Three.js Background -->
+    <div id="threejs-bg"></div>
+    
+    <!-- Particle Canvas -->
+    <div id="particle-canvas"></div>
     
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 transition-all duration-500" id="navbar">
-        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#" class="text-3xl font-display tracking-wider">
-                <span class="text-light">THARU</span>
-                <span class="text-secondary">.</span>
-            </a>
-            
-            <div class="hidden lg:flex space-x-10">
-                <a href="#home" class="text-light hover:text-secondary transition-colors font-medium">Home</a>
-                <a href="#about" class="text-light hover:text-secondary transition-colors font-medium">About</a>
-                <a href="#portfolio" class="text-light hover:text-secondary transition-colors font-medium">Portfolio</a>
-                <a href="#services" class="text-light hover:text-secondary transition-colors font-medium">Services</a>
-                <a href="#testimonials" class="text-light hover:text-secondary transition-colors font-medium">Clients</a>
-                <a href="#contact" class="text-light hover:text-secondary transition-colors font-medium">Contact</a>
-            </div>
-            
-            <div class="lg:hidden">
-                <button id="menu-toggle" class="text-light focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
-                </button>
+    <nav class="fixed w-full z-50 bg-opacity-90 bg-[#0a192f] backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-2xl font-bold text-white">tharu<span class="text-[#64ffda]">.</span>photography</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-8">
+                        <a href="#home" class="nav-link text-white hover:text-[#64ffda] px-3 py-2 text-sm font-medium active">Home</a>
+                        <a href="#about" class="nav-link text-white hover:text-[#64ffda] px-3 py-2 text-sm font-medium">About</a>
+                        <a href="#portfolio" class="nav-link text-white hover:text-[#64ffda] px-3 py-2 text-sm font-medium">Portfolio</a>
+                        <a href="#services" class="nav-link text-white hover:text-[#64ffda] px-3 py-2 text-sm font-medium">Services</a>
+                        <a href="#contact" class="nav-link text-white hover:text-[#64ffda] px-3 py-2 text-sm font-medium">Contact</a>
+                        <a href="https://www.instagram.com/tharu_689/profilecard/?igsh=MXd5ZTRsZHkycWUyag==" target="_blank" class="text-white hover:text-[#64ffda]">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="https://www.facebook.com/share/15FsNuu5kM/?mibextid=wwXIfr" target="_blank" class="text-white hover:text-[#64ffda]">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-[#64ffda] focus:outline-none">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
         
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden lg:hidden bg-dark/95 w-full absolute top-20 left-0 py-4 px-6">
-            <div class="flex flex-col space-y-4">
-                <a href="#home" class="text-light hover:text-secondary transition-colors">Home</a>
-                <a href="#about" class="text-light hover:text-secondary transition-colors">About</a>
-                <a href="#portfolio" class="text-light hover:text-secondary transition-colors">Portfolio</a>
-                <a href="#services" class="text-light hover:text-secondary transition-colors">Services</a>
-                <a href="#testimonials" class="text-light hover:text-secondary transition-colors">Clients</a>
-                <a href="#contact" class="text-light hover:text-secondary transition-colors">Contact</a>
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#0a192f]">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#64ffda]">Home</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#64ffda]">About</a>
+                <a href="#portfolio" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#64ffda]">Portfolio</a>
+                <a href="#services" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#64ffda]">Services</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-[#64ffda]">Contact</a>
+                <div class="flex space-x-4 px-3 py-2">
+                    <a href="https://www.instagram.com/tharu_689/profilecard/?igsh=MXd5ZTRsZHkycWUyag==" target="_blank" class="text-white hover:text-[#64ffda]">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                    <a href="https://www.facebook.com/share/15FsNuu5kM/?mibextid=wwXIfr" target="_blank" class="text-white hover:text-[#64ffda]">
+                        <i class="fab fa-facebook text-xl"></i>
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
     
     <!-- Hero Section -->
-    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden hero-gradient">
-        <div class="container mx-auto px-6 py-20 text-center">
-            <h1 class="text-6xl md:text-8xl font-display tracking-tight mb-6">
-                <span class="text-light">CAPTURING</span>
-                <span class="text-secondary">.</span>
-                <span class="text-light">MOMENTS</span>
-                <span class="text-secondary">.</span>
-                <span class="text-light">THAT</span>
-                <span class="text-secondary">.</span>
-                <span class="text-light">MATTER</span>
-            </h1>
-            
-            <p class="text-xl md:text-2xl max-w-3xl mx-auto mb-12 opacity-90">
-                Premium visual storytelling through contemporary photography. Based in Colombo, serving clients worldwide.
-            </p>
-            
-            <div class="flex flex-col sm:flex-row justify-center gap-4">
-                <a href="#portfolio" class="bg-secondary hover:bg-secondary/90 text-light px-8 py-4 rounded-full font-medium transition-all transform hover:-translate-y-1 shadow-lg shadow-secondary/30">
-                    View Portfolio
-                </a>
-                <a href="#contact" class="border-2 border-light hover:border-secondary text-light hover:text-secondary px-8 py-4 rounded-full font-medium transition-all transform hover:-translate-y-1">
-                    Book a Session
-                </a>
+    <section id="home" class="min-h-screen flex items-center justify-center relative overflow-hidden pt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+            <div class="text-center">
+                <h1 class="splitting text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 hero-text" data-splitting>
+                    <span class="block">Tharuka</span>
+                    <span class="block text-[#64ffda]">Priyadarshana</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-[#ccd6f6] max-w-3xl mx-auto mb-10" data-scroll>
+                    Capturing life's most precious moments with artistry and passion
+                </p>
+                <div class="flex justify-center space-x-4" data-scroll>
+                    <a href="#portfolio" class="px-8 py-3 bg-[#1e90ff] hover:bg-[#64ffda] text-white font-medium rounded-full transition duration-300 transform hover:scale-105">
+                        View Portfolio
+                    </a>
+                    <a href="#contact" class="px-8 py-3 border-2 border-[#64ffda] text-[#64ffda] hover:bg-[#64ffda] hover:text-[#0a192f] font-medium rounded-full transition duration-300 transform hover:scale-105">
+                        Book a Session
+                    </a>
+                </div>
             </div>
         </div>
         
+        <!-- Scroll indicator -->
         <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <svg class="w-8 h-8 text-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-            </svg>
+            <a href="#about" class="text-white hover:text-[#64ffda]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+            </a>
         </div>
     </section>
     
     <!-- About Section -->
-    <section id="about" class="py-20 bg-dark relative overflow-hidden">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col lg:flex-row items-center">
-                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
-                    <h2 class="text-5xl font-display mb-8">
-                        <span class="text-light">ABOUT</span>
-                        <span class="text-secondary">.</span>
-                    </h2>
-                    
-                    <div class="space-y-6">
-                        <p class="text-lg opacity-90">
-                            Tharu Photography is a premier visual storytelling studio specializing in contemporary photography for discerning clients worldwide. Founded in 2015, we've established ourselves as one of Sri Lanka's most sought-after photography studios.
-                        </p>
-                        
-                        <p class="text-lg opacity-90">
-                            Our approach blends technical precision with artistic vision, creating images that transcend trends and stand the test of time. We believe in authentic storytelling that captures the essence of your unique narrative.
-                        </p>
-                        
-                        <div class="grid grid-cols-2 gap-4 mt-8">
-                            <div class="bg-primary/50 p-6 rounded-xl">
-                                <h3 class="text-secondary text-2xl font-display mb-2">10K+</h3>
-                                <p class="opacity-80">Photos Captured</p>
-                            </div>
-                            <div class="bg-primary/50 p-6 rounded-xl">
-                                <h3 class="text-secondary text-2xl font-display mb-2">500+</h3>
-                                <p class="opacity-80">Happy Clients</p>
-                            </div>
-                            <div class="bg-primary/50 p-6 rounded-xl">
-                                <h3 class="text-secondary text-2xl font-display mb-2">50+</h3>
-                                <p class="opacity-80">Awards Won</p>
-                            </div>
-                            <div class="bg-primary/50 p-6 rounded-xl">
-                                <h3 class="text-secondary text-2xl font-display mb-2">7</h3>
-                                <p class="opacity-80">Years Experience</p>
-                            </div>
+    <section id="about" class="py-20 bg-gradient-to-b from-[#0a192f] to-[#0a1a38]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
+                <div class="lg:col-span-5 mb-10 lg:mb-0" data-scroll>
+                    <div class="relative">
+                        <div class="rounded-lg overflow-hidden shadow-xl transform rotate-3">
+                            <img src="https://images.unsplash.com/photo-1554080353-a576cf803bda?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" alt="Tharuka Priyadarshana" class="w-full h-auto">
+                        </div>
+                        <div class="absolute -bottom-5 -right-5 bg-[#1e90ff] p-4 rounded-lg shadow-lg z-10">
+                            <h3 class="text-white font-bold text-xl">5+ Years</h3>
+                            <p class="text-white text-sm">Experience</p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="lg:w-1/2 relative">
-                    <div class="relative group">
-                        <img src="https://images.unsplash.com/photo-1529612700005-e35377bf1415?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                             alt="Tharu Photography" 
-                             class="w-full h-auto rounded-2xl shadow-2xl image-hover-effect">
-                        
-                        <div class="absolute -bottom-6 -right-6 bg-secondary p-6 rounded-2xl shadow-xl group-hover:rotate-6 transition-transform duration-500">
-                            <h3 class="text-dark text-xl font-display">Tharu Perera</h3>
-                            <p class="text-dark/80">Lead Photographer</p>
+                <div class="lg:col-span-7" data-scroll>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                        <span class="text-[#64ffda]">About</span> Me
+                    </h2>
+                    <p class="text-lg text-[#ccd6f6] mb-6">
+                        Hello! I'm Tharuka Priyadarshana, a passionate photographer dedicated to capturing the beauty in every moment. With over 5 years of professional experience, I specialize in portrait, wedding, and landscape photography.
+                    </p>
+                    <p class="text-lg text-[#ccd6f6] mb-8">
+                        My approach combines technical expertise with artistic vision to create images that tell your unique story. Whether it's a wedding, family portrait, or commercial project, I strive to create photographs that you'll treasure for a lifetime.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="flex items-center">
+                            <div class="mr-3 text-[#64ffda]">
+                                <i class="fas fa-camera-retro text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">Professional Gear</h4>
+                                <p class="text-sm text-[#8892b0]">High-end equipment</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="mr-3 text-[#64ffda]">
+                                <i class="fas fa-lightbulb text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">Creative Vision</h4>
+                                <p class="text-sm text-[#8892b0]">Unique perspective</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="mr-3 text-[#64ffda]">
+                                <i class="fas fa-heart text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">Passion</h4>
+                                <p class="text-sm text-[#8892b0]">Love for photography</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="mr-3 text-[#64ffda]">
+                                <i class="fas fa-award text-2xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">Award Winning</h4>
+                                <p class="text-sm text-[#8892b0]">Recognized work</p>
+                            </div>
                         </div>
                     </div>
+                    <a href="#contact" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-[#1e90ff] hover:bg-[#64ffda] transition duration-300">
+                        Get in Touch
+                        <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
     
     <!-- Portfolio Section -->
-    <section id="portfolio" class="py-20 bg-primary relative">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-5xl font-display mb-4">
-                    <span class="text-light">PORTFOLIO</span>
-                    <span class="text-secondary">.</span>
+    <section id="portfolio" class="py-20 bg-[#0a1a38]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-scroll>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                    My <span class="text-[#64ffda]">Portfolio</span>
                 </h2>
-                <p class="text-xl opacity-90 max-w-2xl mx-auto">
-                    Explore our curated collections showcasing the breadth and depth of our photographic work.
+                <p class="text-lg text-[#ccd6f6] max-w-2xl mx-auto">
+                    A selection of my recent work across different photography genres
                 </p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Portfolio Item 1 -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1529633980621-989d4e3f778f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                         alt="Wedding Photography" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
-                        <h3 class="text-2xl font-display text-light mb-2">Wedding Stories</h3>
-                        <p class="text-light/80 mb-4">Elegant documentation of your special day</p>
-                        <a href="#" class="text-secondary font-medium flex items-center group">
-                            View Collection
-                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </a>
+            <!-- Portfolio Filter -->
+            <div class="flex justify-center mb-12" data-scroll>
+                <div class="inline-flex rounded-full p-1 bg-[#112240]">
+                    <button type="button" class="portfolio-filter px-4 py-2 rounded-full text-sm font-medium text-white bg-[#1e90ff]" data-filter="all">All</button>
+                    <button type="button" class="portfolio-filter px-4 py-2 rounded-full text-sm font-medium text-white hover:text-[#64ffda]" data-filter="portrait">Portrait</button>
+                    <button type="button" class="portfolio-filter px-4 py-2 rounded-full text-sm font-medium text-white hover:text-[#64ffda]" data-filter="wedding">Wedding</button>
+                    <button type="button" class="portfolio-filter px-4 py-2 rounded-full text-sm font-medium text-white hover:text-[#64ffda]" data-filter="landscape">Landscape</button>
+                    <button type="button" class="portfolio-filter px-4 py-2 rounded-full text-sm font-medium text-white hover:text-[#64ffda]" data-filter="commercial">Commercial</button>
+                </div>
+            </div>
+            
+            <!-- Portfolio Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Item 1 -->
+                <div class="portfolio-item portrait gallery-item rounded-lg overflow-hidden shadow-lg relative group" data-scroll>
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" alt="Portrait Photography" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-xl font-bold">Portrait Series</h3>
+                            <p class="text-[#ccd6f6]">Emotional depth captured</p>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Portfolio Item 2 -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                         alt="Portrait Photography" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
-                        <h3 class="text-2xl font-display text-light mb-2">Portrait Series</h3>
-                        <p class="text-light/80 mb-4">Capturing the essence of personality</p>
-                        <a href="#" class="text-secondary font-medium flex items-center group">
-                            View Collection
-                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </a>
+                <!-- Item 2 -->
+                <div class="portfolio-item wedding gallery-item rounded-lg overflow-hidden shadow-lg relative group" data-scroll>
+                    <img src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" alt="Wedding Photography" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-xl font-bold">Wedding Day</h3>
+                            <p class="text-[#ccd6f6]">Unforgettable moments</p>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Portfolio Item 3 -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                         alt="Family Photography" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
-                        <h3 class="text-2xl font-display text-light mb-2">Family Chronicles</h3>
-                        <p class="text-light/80 mb-4">Timeless memories for generations</p>
-                        <a href="#" class="text-secondary font-medium flex items-center group">
-                            View Collection
-                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </a>
+                <!-- Item 3 -->
+                <div class="portfolio-item landscape gallery-item rounded-lg overflow-hidden shadow-lg relative group" data-scroll>
+                    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Landscape Photography" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-xl font-bold">Mountain Scapes</h3>
+                            <p class="text-[#ccd6f6]">Nature's grandeur</p>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Portfolio Item 4 -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                         alt="Event Photography" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
-                        <h3 class="text-2xl font-display text-light mb-2">Event Coverage</h3>
-                        <p class="text-light/80 mb-4">Professional documentation of special occasions</p>
-                        <a href="#" class="text-secondary font-medium flex items-center group">
-                            View Collection
-                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </a>
+                <!-- Item 4 -->
+                <div class="portfolio-item commercial gallery-item rounded-lg overflow-hidden shadow-lg relative group" data-scroll>
+                    <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Commercial Photography" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-xl font-bold">Product Shoot</h3>
+                            <p class="text-[#ccd6f6]">Brand storytelling</p>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Portfolio Item 5 -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1493863641943-9b68992a8d07?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                         alt="Commercial Photography" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
-                        <h3 class="text-2xl font-display text-light mb-2">Commercial Work</h3>
-                        <p class="text-light/80 mb-4">Elevating brands through visual storytelling</p>
-                        <a href="#" class="text-secondary font-medium flex items-center group">
-                            View Collection
-                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </a>
+                <!-- Item 5 -->
+                <div class="portfolio-item portrait gallery-item rounded-lg overflow-hidden shadow-lg relative group" data-scroll>
+                    <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" alt="Portrait Photography" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-xl font-bold">Urban Portraits</h3>
+                            <p class="text-[#ccd6f6]">City vibes</p>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Portfolio Item 6 -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-xl">
-                    <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
-                         alt="Fine Art Photography" 
-                         class="w-full h-96 object-cover transition-transform duration-700 group-hover:scale-110">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/30 to-transparent flex flex-col justify-end p-6">
-                        <h3 class="text-2xl font-display text-light mb-2">Fine Art Series</h3>
-                        <p class="text-light/80 mb-4">Conceptual photography projects</p>
-                        <a href="#" class="text-secondary font-medium flex items-center group">
-                            View Collection
-                            <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </a>
+                <!-- Item 6 -->
+                <div class="portfolio-item wedding gallery-item rounded-lg overflow-hidden shadow-lg relative group" data-scroll>
+                    <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Wedding Photography" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h3 class="text-white text-xl font-bold">Wedding Details</h3>
+                            <p class="text-[#ccd6f6]">The little things</p>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="text-center mt-16">
-                <a href="#" class="inline-flex items-center px-8 py-4 border-2 border-secondary text-secondary font-medium rounded-full hover:bg-secondary hover:text-light transition-all">
+            <div class="text-center mt-12" data-scroll>
+                <a href="#" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-[#1e90ff] hover:bg-[#64ffda] transition duration-300">
                     View Full Portfolio
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                 </a>
             </div>
@@ -371,260 +426,148 @@
     </section>
     
     <!-- Services Section -->
-    <section id="services" class="py-20 bg-dark relative">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-5xl font-display mb-4">
-                    <span class="text-light">SERVICES</span>
-                    <span class="text-secondary">.</span>
+    <section id="services" class="py-20 bg-gradient-to-b from-[#0a1a38] to-[#0a192f]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-scroll>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                    My <span class="text-[#64ffda]">Services</span>
                 </h2>
-                <p class="text-xl opacity-90 max-w-2xl mx-auto">
-                    Comprehensive photography services tailored to your unique needs and vision.
+                <p class="text-lg text-[#ccd6f6] max-w-2xl mx-auto">
+                    Professional photography services tailored to your needs
                 </p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Service 1 -->
-                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
-                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
-                        <i class="fas fa-ring"></i>
+                <div class="bg-[#112240] rounded-lg p-8 shadow-xl transform transition duration-500 hover:scale-105" data-scroll>
+                    <div class="text-[#64ffda] mb-4">
+                        <i class="fas fa-ring text-4xl"></i>
                     </div>
-                    <h3 class="text-2xl font-display text-light mb-4">Wedding Photography</h3>
-                    <p class="opacity-90 mb-6">Comprehensive coverage of your special day from preparation to reception, delivered with artistic flair and attention to detail.</p>
-                    <ul class="space-y-2 mb-6">
+                    <h3 class="text-xl font-bold text-white mb-3">Wedding Photography</h3>
+                    <p class="text-[#ccd6f6] mb-4">
+                        Capture every special moment of your big day with our comprehensive wedding photography packages.
+                    </p>
+                    <ul class="text-[#8892b0] mb-6 space-y-2">
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Full-day coverage
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Full day coverage
                         </li>
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Second photographer
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Pre-wedding shoot
                         </li>
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            High-resolution images
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
                             Online gallery
                         </li>
                     </ul>
-                    <a href="#" class="text-secondary font-medium flex items-center group">
-                        Learn More
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
+                    <div class="text-[#64ffda] font-bold text-xl">From $1200</div>
                 </div>
                 
                 <!-- Service 2 -->
-                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
-                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
-                        <i class="fas fa-users"></i>
+                <div class="bg-[#112240] rounded-lg p-8 shadow-xl transform transition duration-500 hover:scale-105" data-scroll>
+                    <div class="text-[#64ffda] mb-4">
+                        <i class="fas fa-user text-4xl"></i>
                     </div>
-                    <h3 class="text-2xl font-display text-light mb-4">Portrait Sessions</h3>
-                    <p class="opacity-90 mb-6">Professional portrait sessions tailored to your needs, whether for personal branding, social media, or personal keepsakes.</p>
-                    <ul class="space-y-2 mb-6">
+                    <h3 class="text-xl font-bold text-white mb-3">Portrait Sessions</h3>
+                    <p class="text-[#ccd6f6] mb-4">
+                        Professional portrait sessions for individuals, couples, families, and corporate headshots.
+                    </p>
+                    <ul class="text-[#8892b0] mb-6 space-y-2">
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Studio or location
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Studio or outdoor
                         </li>
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Professional styling advice
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Multiple outfit changes
                         </li>
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Digital & print options
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Professional editing
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Digital delivery
                         </li>
                     </ul>
-                    <a href="#" class="text-secondary font-medium flex items-center group">
-                        Learn More
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
+                    <div class="text-[#64ffda] font-bold text-xl">From $250</div>
                 </div>
                 
                 <!-- Service 3 -->
-                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
-                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
-                        <i class="fas fa-building"></i>
+                <div class="bg-[#112240] rounded-lg p-8 shadow-xl transform transition duration-500 hover:scale-105" data-scroll>
+                    <div class="text-[#64ffda] mb-4">
+                        <i class="fas fa-mountain text-4xl"></i>
                     </div>
-                    <h3 class="text-2xl font-display text-light mb-4">Commercial Photography</h3>
-                    <p class="opacity-90 mb-6">High-quality commercial imagery for brands, including product photography, corporate headshots, and marketing materials.</p>
-                    <ul class="space-y-2 mb-6">
+                    <h3 class="text-xl font-bold text-white mb-3">Landscape Photography</h3>
+                    <p class="text-[#ccd6f6] mb-4">
+                        Stunning landscape photography for personal enjoyment or commercial use.
+                    </p>
+                    <ul class="text-[#8892b0] mb-6 space-y-2">
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Product staging
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Golden hour sessions
                         </li>
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Brand storytelling
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Location scouting
                         </li>
                         <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Professional editing
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            High-resolution prints
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-[#64ffda] mr-2"></i>
+                            Digital licensing
                         </li>
                     </ul>
-                    <a href="#" class="text-secondary font-medium flex items-center group">
-                        Learn More
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
+                    <div class="text-[#64ffda] font-bold text-xl">From $400</div>
                 </div>
-                
-                <!-- Service 4 -->
-                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
-                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
-                        <i class="fas fa-calendar-alt"></i>
-                    </div>
-                    <h3 class="text-2xl font-display text-light mb-4">Event Coverage</h3>
-                    <p class="opacity-90 mb-6">Professional documentation of corporate events, galas, parties, and other special occasions.</p>
-                    <ul class="space-y-2 mb-6">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Candid moments
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Professional editing
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Fast turnaround
-                        </li>
-                    </ul>
-                    <a href="#" class="text-secondary font-medium flex items-center group">
-                        Learn More
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                </div>
-                
-                <!-- Service 5 -->
-                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
-                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <h3 class="text-2xl font-display text-light mb-4">Graduation Portraits</h3>
-                    <p class="opacity-90 mb-6">Celebrate academic achievements with professional graduation portraits that capture this important milestone.</p>
-                    <ul class="space-y-2 mb-6">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Studio or campus location
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Cap & gown provided
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Family packages available
-                        </li>
-                    </ul>
-                    <a href="#" class="text-secondary font-medium flex items-center group">
-                        Learn More
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                </div>
-                
-                <!-- Service 6 -->
-                <div class="bg-primary/50 p-8 rounded-2xl hover:bg-primary/70 transition-all group">
-                    <div class="text-secondary mb-6 text-5xl group-hover:animate-float">
-                        <i class="fas fa-magic"></i>
-                    </div>
-                    <h3 class="text-2xl font-display text-light mb-4">Photo Restoration</h3>
-                    <p class="opacity-90 mb-6">Bring your old, damaged photos back to life with our professional photo restoration services.</p>
-                    <ul class="space-y-2 mb-6">
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Color correction
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Damage repair
-                        </li>
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-secondary mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            Digital & print options
-                        </li>
-                    </ul>
-                    <a href="#" class="text-secondary font-medium flex items-center group">
-                        Learn More
-                        <svg class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                        </svg>
-                    </a>
-                </div>
+            </div>
+            
+            <div class="text-center mt-12" data-scroll>
+                <a href="#contact" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-[#1e90ff] hover:bg-[#64ffda] transition duration-300">
+                    Custom Package Request
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                </a>
             </div>
         </div>
     </section>
     
     <!-- Testimonials Section -->
-    <section id="testimonials" class="py-20 bg-primary relative">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-5xl font-display mb-4">
-                    <span class="text-light">CLIENT</span>
-                    <span class="text-secondary">.</span>
-                    <span class="text-light">STORIES</span>
+    <section class="py-20 bg-[#0a192f]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-scroll>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+                    Client <span class="text-[#64ffda]">Testimonials</span>
                 </h2>
-                <p class="text-xl opacity-90 max-w-2xl mx-auto">
-                    Don't just take our word for it - hear what our clients have to say.
+                <p class="text-lg text-[#ccd6f6] max-w-2xl mx-auto">
+                    What my clients say about my work
                 </p>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Testimonial 1 -->
-                <div class="bg-dark p-8 rounded-2xl">
-                    <div class="flex items-center mb-6">
-                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J." class="w-16 h-16 rounded-full object-cover mr-4">
+                <div class="bg-[#112240] rounded-lg p-8" data-scroll>
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0 mr-4">
+                            <img class="h-12 w-12 rounded-full" src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J.">
+                        </div>
                         <div>
-                            <h4 class="text-light font-medium">Sarah J.</h4>
-                            <p class="text-secondary text-sm">Wedding Client</p>
+                            <h4 class="text-white font-bold">Sarah J.</h4>
+                            <p class="text-[#64ffda] text-sm">Wedding Client</p>
                         </div>
                     </div>
-                    <p class="opacity-90 italic mb-6">
-                        "Tharu captured our wedding day perfectly. The photos are stunning and truly reflect the emotions of the day. We'll cherish them forever!"
+                    <p class="text-[#ccd6f6]">
+                        "Tharuka captured our wedding day perfectly! The photos are absolutely stunning and bring back all the emotions of that special day. Her attention to detail and ability to capture candid moments is incredible."
                     </p>
-                    <div class="flex text-secondary">
+                    <div class="mt-4 text-[#64ffda]">
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
@@ -634,18 +577,20 @@
                 </div>
                 
                 <!-- Testimonial 2 -->
-                <div class="bg-dark p-8 rounded-2xl">
-                    <div class="flex items-center mb-6">
-                        <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="David L." class="w-16 h-16 rounded-full object-cover mr-4">
+                <div class="bg-[#112240] rounded-lg p-8" data-scroll>
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0 mr-4">
+                            <img class="h-12 w-12 rounded-full" src="https://randomuser.me/api/portraits/men/45.jpg" alt="Michael T.">
+                        </div>
                         <div>
-                            <h4 class="text-light font-medium">David L.</h4>
-                            <p class="text-secondary text-sm">Corporate Client</p>
+                            <h4 class="text-white font-bold">Michael T.</h4>
+                            <p class="text-[#64ffda] text-sm">Corporate Client</p>
                         </div>
                     </div>
-                    <p class="opacity-90 italic mb-6">
-                        "The team did an exceptional job with our company headshots. Professional, efficient, and the results were better than we could have hoped for."
+                    <p class="text-[#ccd6f6]">
+                        "We hired Tharuka for our company's executive portraits and couldn't be happier. She made everyone feel comfortable and the results were professional yet approachable - exactly what we wanted for our brand."
                     </p>
-                    <div class="flex text-secondary">
+                    <div class="mt-4 text-[#64ffda]">
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
@@ -655,23 +600,25 @@
                 </div>
                 
                 <!-- Testimonial 3 -->
-                <div class="bg-dark p-8 rounded-2xl">
-                    <div class="flex items-center mb-6">
-                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya K." class="w-16 h-16 rounded-full object-cover mr-4">
+                <div class="bg-[#112240] rounded-lg p-8" data-scroll>
+                    <div class="flex items-center mb-4">
+                        <div class="flex-shrink-0 mr-4">
+                            <img class="h-12 w-12 rounded-full" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya K.">
+                        </div>
                         <div>
-                            <h4 class="text-light font-medium">Priya K.</h4>
-                            <p class="text-secondary text-sm">Family Portrait Client</p>
+                            <h4 class="text-white font-bold">Priya K.</h4>
+                            <p class="text-[#64ffda] text-sm">Family Portrait Client</p>
                         </div>
                     </div>
-                    <p class="opacity-90 italic mb-6">
-                        "Our family photos are absolutely beautiful! Tharu made us all feel comfortable and captured our family's personality perfectly."
+                    <p class="text-[#ccd6f6]">
+                        "Our family photos with Tharuka are treasures we'll cherish forever. She has a magical way with children - our toddler actually enjoyed the session! The photos are natural, beautiful and full of life."
                     </p>
-                    <div class="flex text-secondary">
+                    <div class="mt-4 text-[#64ffda]">
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
                         <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
                     </div>
                 </div>
             </div>
@@ -679,281 +626,137 @@
     </section>
     
     <!-- Contact Section -->
-    <section id="contact" class="py-20 bg-dark relative">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col lg:flex-row">
-                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
-                    <h2 class="text-5xl font-display mb-8">
-                        <span class="text-light">LET'S</span>
-                        <span class="text-secondary">.</span>
-                        <span class="text-light">CREATE</span>
+    <section id="contact" class="py-20 bg-gradient-to-b from-[#0a192f] to-[#0a1a38]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+                <div class="lg:col-span-5 mb-10 lg:mb-0" data-scroll>
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                        Get In <span class="text-[#64ffda]">Touch</span>
                     </h2>
-                    
-                    <p class="text-xl opacity-90 mb-8">
-                        Ready to discuss your photography needs? Get in touch and let's create something beautiful together.
+                    <p class="text-lg text-[#ccd6f6] mb-8">
+                        Ready to book a session or have questions about my services? Fill out the form or contact me directly.
                     </p>
                     
                     <div class="space-y-6">
                         <div class="flex items-start">
-                            <div class="text-secondary mr-4 mt-1">
-                                <i class="fas fa-map-marker-alt text-xl"></i>
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="bg-[#1e90ff] rounded-full p-3">
+                                    <i class="fas fa-phone-alt text-white"></i>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="text-light font-medium mb-1">Studio Address</h3>
-                                <p class="opacity-90">123 Camera Street, Colombo 05, Sri Lanka</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start">
-                            <div class="text-secondary mr-4 mt-1">
-                                <i class="fas fa-envelope text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-light font-medium mb-1">Email Us</h3>
-                                <p class="opacity-90">hello@tharuphotography.com</p>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-white">Phone</h3>
+                                <p class="text-[#ccd6f6]">+39 375 558 8689</p>
                             </div>
                         </div>
                         
                         <div class="flex items-start">
-                            <div class="text-secondary mr-4 mt-1">
-                                <i class="fas fa-phone-alt text-xl"></i>
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="bg-[#1e90ff] rounded-full p-3">
+                                    <i class="fas fa-envelope text-white"></i>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="text-light font-medium mb-1">Call Us</h3>
-                                <p class="opacity-90">+94 76 123 4567</p>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-white">Email</h3>
+                                <p class="text-[#ccd6f6]">hello@tharu.photography</p>
                             </div>
                         </div>
                         
                         <div class="flex items-start">
-                            <div class="text-secondary mr-4 mt-1">
-                                <i class="fas fa-clock text-xl"></i>
+                            <div class="flex-shrink-0 mt-1">
+                                <div class="bg-[#1e90ff] rounded-full p-3">
+                                    <i class="fas fa-map-marker-alt text-white"></i>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="text-light font-medium mb-1">Working Hours</h3>
-                                <p class="opacity-90">Monday - Saturday: 9:00 AM - 6:00 PM</p>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-white">Based In</h3>
+                                <p class="text-[#ccd6f6]">Italy, Serving Worldwide</p>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-10">
-                        <h3 class="text-light font-medium mb-4">Follow Us</h3>
-                        <div class="flex space-x-4">
-                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
-                                <i class="fab fa-instagram"></i>
+                        
+                        <div class="flex space-x-4 pt-4">
+                            <a href="https://www.instagram.com/tharu_689/profilecard/?igsh=MXd5ZTRsZHkycWUyag==" target="_blank" class="text-white hover:text-[#64ffda] bg-[#112240] rounded-full p-3">
+                                <i class="fab fa-instagram text-xl"></i>
                             </a>
-                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
-                                <i class="fab fa-facebook-f"></i>
+                            <a href="https://www.facebook.com/share/15FsNuu5kM/?mibextid=wwXIfr" target="_blank" class="text-white hover:text-[#64ffda] bg-[#112240] rounded-full p-3">
+                                <i class="fab fa-facebook-f text-xl"></i>
                             </a>
-                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
-                                <i class="fab fa-twitter"></i>
+                            <a href="#" class="text-white hover:text-[#64ffda] bg-[#112240] rounded-full p-3">
+                                <i class="fab fa-twitter text-xl"></i>
                             </a>
-                            <a href="#" class="text-light hover:text-secondary transition-colors text-xl">
-                                <i class="fab fa-pinterest-p"></i>
+                            <a href="#" class="text-white hover:text-[#64ffda] bg-[#112240] rounded-full p-3">
+                                <i class="fab fa-linkedin-in text-xl"></i>
                             </a>
                         </div>
                     </div>
                 </div>
                 
-                <div class="lg:w-1/2">
-                    <form class="bg-primary/50 p-8 rounded-2xl">
-                        <div class="mb-6">
-                            <label for="name" class="block text-light font-medium mb-2">Your Name</label>
-                            <input type="text" id="name" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
-                        </div>
-                        
-                        <div class="mb-6">
-                            <label for="email" class="block text-light font-medium mb-2">Email Address</label>
-                            <input type="email" id="email" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
-                        </div>
-                        
-                        <div class="mb-6">
-                            <label for="phone" class="block text-light font-medium mb-2">Phone Number</label>
-                            <input type="tel" id="phone" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
-                        </div>
-                        
-                        <div class="mb-6">
-                            <label for="service" class="block text-light font-medium mb-2">Service Interested In</label>
-                            <select id="service" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light">
-                                <option>Wedding Photography</option>
-                                <option>Portrait Sessions</option>
-                                <option>Commercial Photography</option>
-                                <option>Event Coverage</option>
-                                <option>Graduation Portraits</option>
-                                <option>Photo Restoration</option>
-                                <option>Other</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-6">
-                            <label for="message" class="block text-light font-medium mb-2">Your Message</label>
-                            <textarea id="message" rows="5" class="w-full px-4 py-3 bg-dark border border-dark focus:border-secondary focus:outline-none rounded-lg text-light"></textarea>
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-secondary hover:bg-secondary/90 text-light font-medium py-4 px-6 rounded-lg transition-all transform hover:-translate-y-1">
-                            Send Message
-                        </button>
-                    </form>
+                <div class="lg:col-span-7" data-scroll>
+                    <div class="bg-[#112240] rounded-lg shadow-xl p-8">
+                        <h3 class="text-2xl font-bold text-white mb-6">Send Me a Message</h3>
+                        <form id="contactForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-[#ccd6f6] mb-1">Your Name</label>
+                                    <input type="text" id="name" name="name" class="contact-input w-full px-4 py-3 rounded-lg text-white focus:ring-2 focus:ring-[#64ffda]">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-[#ccd6f6] mb-1">Email Address</label>
+                                    <input type="email" id="email" name="email" class="contact-input w-full px-4 py-3 rounded-lg text-white focus:ring-2 focus:ring-[#64ffda]">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="subject" class="block text-sm font-medium text-[#ccd6f6] mb-1">Subject</label>
+                                <input type="text" id="subject" name="subject" class="contact-input w-full px-4 py-3 rounded-lg text-white focus:ring-2 focus:ring-[#64ffda]">
+                            </div>
+                            <div>
+                                <label for="message" class="block text-sm font-medium text-[#ccd6f6] mb-1">Your Message</label>
+                                <textarea id="message" name="message" rows="5" class="contact-input w-full px-4 py-3 rounded-lg text-white focus:ring-2 focus:ring-[#64ffda]"></textarea>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full px-6 py-3 bg-[#1e90ff] hover:bg-[#64ffda] text-white font-medium rounded-lg transition duration-300 transform hover:scale-105">
+                                    Send Message
+                                    <i class="fas fa-paper-plane ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
     
     <!-- Footer -->
-    <footer class="bg-primary py-12 border-t border-primary/50">
-        <div class="container mx-auto px-6">
+    <footer class="bg-[#0a192f] py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <div class="mb-6 md:mb-0">
-                    <a href="#" class="text-3xl font-display tracking-wider">
-                        <span class="text-light">THARU</span>
-                        <span class="text-secondary">.</span>
-                    </a>
+                    <span class="text-2xl font-bold text-white">tharu<span class="text-[#64ffda]">.</span>photography</span>
                 </div>
-                
-                <div class="flex flex-col md:flex-row md:space-x-10 space-y-4 md:space-y-0 text-center md:text-left">
-                    <a href="#home" class="text-light hover:text-secondary transition-colors">Home</a>
-                    <a href="#about" class="text-light hover:text-secondary transition-colors">About</a>
-                    <a href="#portfolio" class="text-light hover:text-secondary transition-colors">Portfolio</a>
-                    <a href="#services" class="text-light hover:text-secondary transition-colors">Services</a>
-                    <a href="#contact" class="text-light hover:text-secondary transition-colors">Contact</a>
-                </div>
-            </div>
-            
-            <div class="border-t border-primary/50 mt-10 pt-10 flex flex-col md:flex-row justify-between items-center">
-                <p class="text-light/80 mb-4 md:mb-0">
-                    &copy; 2023 Tharu Photography. All rights reserved.
-                </p>
-                
-                <div class="flex space-x-6">
-                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="#" class="text-light/80 hover:text-secondary transition-colors">
-                        <i class="fab fa-pinterest-p"></i>
-                    </a>
+                <div class="flex flex-col items-center md:items-end">
+                    <p class="text-[#ccd6f6] mb-4 text-center md:text-right">
+                        Capturing life's beautiful moments with passion and artistry
+                    </p>
+                    <p class="text-[#8892b0] text-sm">
+                        &copy; 2023 Tharuka Priyadarshana. All rights reserved.
+                    </p>
                 </div>
             </div>
         </div>
     </footer>
     
     <!-- Back to Top Button -->
-    <a href="#home" id="back-to-top" class="fixed bottom-8 right-8 w-12 h-12 bg-secondary text-light rounded-full flex items-center justify-center opacity-0 invisible transition-all duration-300">
-        <i class="fas fa-arrow-up"></i>
-    </a>
+    <button id="backToTop" class="fixed bottom-8 right-8 bg-[#1e90ff] hover:bg-[#64ffda] text-white p-3 rounded-full shadow-lg opacity-0 invisible transition-all duration-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+        </svg>
+    </button>
     
-    <!-- JavaScript -->
     <script>
-        // Three.js Background Animation
-        const container = document.getElementById('canvas-container');
-        
-        // Set up Three.js scene
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
-        
-        // Create particles
-        const particlesGeometry = new THREE.BufferGeometry();
-        const particleCount = 1000;
-        
-        const posArray = new Float32Array(particleCount * 3);
-        
-        for(let i = 0; i < particleCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 10;
-        }
-        
-        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        
-        const particlesMaterial = new THREE.PointsMaterial({
-            size: 0.02,
-            color: 0xf43f5e,
-            transparent: true,
-            opacity: 0.8
-        });
-        
-        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particlesMesh);
-        
-        camera.position.z = 3;
-        
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            
-            particlesMesh.rotation.x += 0.0005;
-            particlesMesh.rotation.y += 0.0005;
-            
-            renderer.render(scene, camera);
-        }
-        
-        animate();
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-        
-        // GSAP Animations
-        gsap.registerPlugin(ScrollTrigger);
-        
-        // Animate sections on scroll
-        gsap.utils.toArray('section').forEach(section => {
-            gsap.from(section, {
-                scrollTrigger: {
-                    trigger: section,
-                    start: 'top 80%',
-                    toggleActions: 'play none none none'
-                },
-                opacity: 0,
-                y: 50,
-                duration: 1
-            });
-        });
-        
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            const backToTop = document.getElementById('back-to-top');
-            
-            if (window.scrollY > 100) {
-                navbar.classList.add('bg-dark/95', 'backdrop-blur-sm', 'py-3');
-                navbar.classList.remove('py-4');
-            } else {
-                navbar.classList.remove('bg-dark/95', 'backdrop-blur-sm', 'py-3');
-                navbar.classList.add('py-4');
-            }
-            
-            if (window.scrollY > 300) {
-                backToTop.classList.remove('opacity-0', 'invisible');
-                backToTop.classList.add('opacity-100', 'visible');
-            } else {
-                backToTop.classList.add('opacity-0', 'invisible');
-                backToTop.classList.remove('opacity-100', 'visible');
-            }
-        });
-        
         // Mobile menu toggle
-        const menuToggle = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        
-        menuToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('hidden');
-        });
-        
-        // Close mobile menu when clicking a link
-        document.querySelectorAll('#mobile-menu a').forEach(link => {
-            link.addEventListener('click', function() {
-                mobileMenu.classList.add('hidden');
-            });
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
         });
         
         // Smooth scrolling for navigation links
@@ -964,93 +767,232 @@
                 const targetId = this.getAttribute('href');
                 const targetElement = document.querySelector(targetId);
                 
-                window.scrollTo({
-                    top: targetElement.offsetTop - 80,
-                    behavior: 'smooth'
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                    
+                    // Update active nav link
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // Portfolio filter
+        document.querySelectorAll('.portfolio-filter').forEach(button => {
+            button.addEventListener('click', function() {
+                // Update active filter button
+                document.querySelectorAll('.portfolio-filter').forEach(btn => {
+                    btn.classList.remove('bg-[#1e90ff]');
+                    btn.classList.add('hover:text-[#64ffda]');
+                });
+                this.classList.add('bg-[#1e90ff]');
+                this.classList.remove('hover:text-[#64ffda]');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                // Filter portfolio items
+                document.querySelectorAll('.portfolio-item').forEach(item => {
+                    if (filter === 'all' || item.classList.contains(filter)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
                 });
             });
         });
         
-        // Form submission
-        const contactForm = document.querySelector('#contact form');
-        if (contactForm) {
-            contactForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Get form values
-                const name = document.getElementById('name').value;
-                const email = document.getElementById('email').value;
-                
-                // Show success message
-                alert(`Thank you, ${name}! Your message has been sent. We'll contact you at ${email} soon.`);
-                
-                // Reset the form
-                contactForm.reset();
+        // Back to top button
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.remove('opacity-100', 'visible');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Contact form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            // Here you would typically send the form data to a server
+            // For this example, we'll just show an alert
+            alert(`Thank you, ${name}! Your message has been sent. I'll get back to you soon at ${email}.`);
+            
+            // Reset form
+            this.reset();
+        });
+        
+        // Initialize Splitting.js for text animation
+        Splitting();
+        
+        // Initialize ScrollOut for scroll animations
+        ScrollOut({
+            threshold: 0.2,
+            once: true
+        });
+        
+        // Three.js Background
+        const threeJsBg = document.getElementById('threejs-bg');
+        
+        if (threeJsBg) {
+            // Scene
+            const scene = new THREE.Scene();
+            
+            // Camera
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Renderer
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            threeJsBg.appendChild(renderer.domElement);
+            
+            // Geometry
+            const geometry = new THREE.IcosahedronGeometry(1, 0);
+            
+            // Material
+            const material = new THREE.MeshBasicMaterial({
+                color: 0x1e90ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.5
+            });
+            
+            // Mesh
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                mesh.rotation.x += 0.001;
+                mesh.rotation.y += 0.002;
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
             });
         }
         
-        // p5.js Interactive Elements
-        const sketch = (p) => {
-            let particles = [];
-            
-            p.setup = () => {
-                let canvas = p.createCanvas(p.windowWidth, p.windowHeight);
-                canvas.position(0, 0);
-                canvas.style('z-index', '-1');
-                
-                for (let i = 0; i < 50; i++) {
-                    particles.push(new Particle());
-                }
-            };
-            
-            p.draw = () => {
-                p.clear();
-                
-                for (let particle of particles) {
-                    particle.update();
-                    particle.display();
-                }
-            };
-            
-            p.windowResized = () => {
-                p.resizeCanvas(p.windowWidth, p.windowHeight);
-            };
-            
-            class Particle {
-                constructor() {
-                    this.pos = p.createVector(p.random(p.width), p.random(p.height));
-                    this.vel = p.createVector(p.random(-1, 1), p.random(-1, 1));
-                    this.acc = p.createVector(0, 0);
-                    this.maxSpeed = 2;
-                    this.size = p.random(2, 5);
-                    this.color = p.color(244, 63, 94, 100);
-                }
-                
-                update() {
-                    this.vel.add(this.acc);
-                    this.vel.limit(this.maxSpeed);
-                    this.pos.add(this.vel);
-                    this.acc.mult(0);
-                    
-                    this.edges();
-                }
-                
-                display() {
-                    p.noStroke();
-                    p.fill(this.color);
-                    p.ellipse(this.pos.x, this.pos.y, this.size);
-                }
-                
-                edges() {
-                    if (this.pos.x > p.width) this.pos.x = 0;
-                    if (this.pos.x < 0) this.pos.x = p.width;
-                    if (this.pos.y > p.height) this.pos.y = 0;
-                    if (this.pos.y < 0) this.pos.y = p.height;
-                }
-            }
-        };
+        // p5.js Particle Background
+        const particleCanvas = document.getElementById('particle-canvas');
         
-        new p5(sketch);
+        if (particleCanvas) {
+            const sketch = function(p) {
+                let particles = [];
+                const particleCount = 50;
+                
+                p.setup = function() {
+                    const canvas = p.createCanvas(particleCanvas.clientWidth, particleCanvas.clientHeight);
+                    canvas.parent('particle-canvas');
+                    
+                    // Create particles
+                    for (let i = 0; i < particleCount; i++) {
+                        particles.push({
+                            x: p.random(p.width),
+                            y: p.random(p.height),
+                            size: p.random(2, 5),
+                            speedX: p.random(-0.5, 0.5),
+                            speedY: p.random(-0.5, 0.5),
+                            color: p.color(30, 144, 255, p.random(50, 150))
+                        });
+                    }
+                };
+                
+                p.draw = function() {
+                    p.clear();
+                    
+                    // Update and draw particles
+                    for (let i = 0; i < particles.length; i++) {
+                        const particle = particles[i];
+                        
+                        // Update position
+                        particle.x += particle.speedX;
+                        particle.y += particle.speedY;
+                        
+                        // Wrap around edges
+                        if (particle.x < 0) particle.x = p.width;
+                        if (particle.x > p.width) particle.x = 0;
+                        if (particle.y < 0) particle.y = p.height;
+                        if (particle.y > p.height) particle.y = 0;
+                        
+                        // Draw particle
+                        p.noStroke();
+                        p.fill(particle.color);
+                        p.ellipse(particle.x, particle.y, particle.size);
+                        
+                        // Draw connections
+                        for (let j = i + 1; j < particles.length; j++) {
+                            const other = particles[j];
+                            const distance = p.dist(particle.x, particle.y, other.x, other.y);
+                            
+                            if (distance < 100) {
+                                p.stroke(100, 255, 218, p.map(distance, 0, 100, 50, 0));
+                                p.line(particle.x, particle.y, other.x, other.y);
+                            }
+                        }
+                    }
+                };
+                
+                p.windowResized = function() {
+                    p.resizeCanvas(particleCanvas.clientWidth, particleCanvas.clientHeight);
+                };
+            };
+            
+            new p5(sketch);
+        }
+        
+        // Set active nav link based on scroll position
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY + 100;
+            
+            document.querySelectorAll('section').forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                const sectionId = section.getAttribute('id');
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
